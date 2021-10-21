@@ -1,0 +1,22 @@
+{
+  "name": "wishup assignment",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000w\u0000i\u0000s\u0000h\u0000u\u0000p\u0000-\u0000f\u0000u\u0000l\u0000l\u0000s\u0000t\u0000a\u0000c\u0000k\u0000-\u0000a\u0000s\u0000s\u0000i\u0000g\u0000n\u0000m\u0000e\u0000n\u0000t\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Blue-berd/wishup-fullstack-assignment.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Blue-berd/wishup-fullstack-assignment/issues"
+  },
+  "homepage": "https://github.com/Blue-berd/wishup-fullstack-assignment#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
