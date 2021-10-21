@@ -1,8 +1,6 @@
 const mongoose = require("mongoose")
 const {userModel} = require('../models')
-
-const {validator} = require('../utils')
-const date = require('date-and-time');
+const {validator, functions} = require('../utils')
 
 const createUser = async function(req, res){
     try{ 
@@ -21,8 +19,6 @@ const createUser = async function(req, res){
         }
 
         let now = new Date()
-        now = date.format(now, 'YYYY/MM/DD HH:mm:ss'); 
-
 
         let userObject = {username:username, created_at:now}
         await userModel.create(userObject)
@@ -51,16 +47,9 @@ const getUser = async function(req, res){
         }
 
         let date = userDetails.created_at
-        const year = date.getUTCFullYear()
-        const month = date.getUTCMonth()
-        const day = date.getUTCDate()
-        const hour = date.getUTCHours()
-        const minute = date.getUTCMinutes()
-        const seconds = date.getUTCSeconds() 
+        date = functions.formatDateYMDHMS(date)
 
-        const created_at_time =  `${year}-${month}-${day} ${hour}:${minute}:${seconds}`
-    
-        const userObject = {username:userDetails.username, created_at:created_at_time}
+        const userObject = {username:userDetails.username, created_at:date}
         return res.status(200).send({status:'SUCCESS', data:userObject})
     }
     catch(error){

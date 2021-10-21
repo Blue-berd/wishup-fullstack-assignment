@@ -1,3 +1,4 @@
 module.exports ={
-    validator:require('./validator')
+    validator:require('./validator'),
+    functions:require('./functions')
 }
