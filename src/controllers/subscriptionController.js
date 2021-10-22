@@ -104,8 +104,7 @@ const subscribe = async function (req, res) {
     }
 
     start_date = new Date(start_date);
-    // console.log(start_date)
-    // console.log(validator.isValidDate(start_date))
+  
     //check if start_date is valid and is greater than or equal to present date
     if (!validator.isValidDate(start_date)) {
       res
@@ -116,7 +115,7 @@ const subscribe = async function (req, res) {
         });
       return;
     }
-    console.log(helper.isFutureDate(start_date))
+
     if (!helper.isFutureDate(start_date)) {
       res
         .status(400)
@@ -139,11 +138,8 @@ const subscribe = async function (req, res) {
       var valid_till = "Infinity";
     }
 
-    //find user
-    const userInfo = await userModel.findOne({ username: username });
-
     // check if user already has active plans from all plans
-    let existingPlan = userInfo.subscriptions;
+    let existingPlan = user.subscriptions;
     const activePlan = []
     const pass = 'pass'
     const now = new Date()
@@ -296,14 +292,14 @@ const getSubscription = async function (req, res) {
     const validTill = activePlan[0].valid_till
 
     // from problem statement date should be less than validity date
+
     if(validTill < date){
-      return res.status(400).send({status:'FAILURE', msg:'Date should be less than validity date'})
+      return res.status(400).send({status:'FAILURE', msg:'Date should be less than validity date and greater than current date'})
     }
 
     // calculate days left
     const days_left = helper.subtractDate(date, validTill);
-    console.log()
-    console.log(activePlan)
+  
     //create result object to send response 
     const result = {
       plan_Id : activePlan[0].plan_Id,

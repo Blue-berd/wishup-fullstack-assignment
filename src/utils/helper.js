@@ -1,4 +1,6 @@
 // subtract dates to get difference in days
+// day in miliseconds
+const dayms = 86400000
 
 const subtractDate = function(date1, date2){
     date1 = new Date(date1)
@@ -7,7 +9,7 @@ const subtractDate = function(date1, date2){
     const date2Inms = date2.getTime()
     const total = date2Inms - date1Inms
     console.log(` total = ${total}`)
-    const days = Math.round(total/86400000)
+    const days = Math.round(total/dayms)
     return days
 }
 
@@ -16,10 +18,16 @@ const subtractDate = function(date1, date2){
 const addDaysToDate = function(date1, days){
     date1 = new Date(date1)
     const date1Inms = date1.getTime()
-    const dayInms = days*86400000
+    const dayInms = days*dayms
     const add = new Date(dayInms + date1Inms)
     return new Date(add)
 }
+
+
+function UserException(message) {
+    this.message = message;
+    this.name = 'UserException';
+  }
 
 // add date to convert into desired format 
 const formatDate = function(date, format){
@@ -41,19 +49,27 @@ const formatDate = function(date, format){
     const newDate =  `${year}-${month}-${day} ${hour}:${minute}:${seconds}`
     return newDate
     }
-    return new Date(date)
+    throw new UserException('Invalid Date. should be "YY-MM-DD" OR "YY-MM-DD HH:MM:SS"');
 }
 
-const isFutureDate = function (value) {
-    let today = new Date(new Date().getTime()-86400000)
-    today= new Date(today.getTime()-86400000)
-    value = new Date(value)
-    return (value < today)?false:true
+const isFutureDate = function (date) {
+    let currentDate = new Date()
+    currentDate= new Date(currentDate.getTime()-dayms)
+    date = new Date(date)
+    return (date < currentDate)?false:true
+ };
+
+const isPastDate = function (date) {
+    let currentDate = new Date()
+    currentDate= new currentDate(today.getTime()-dayms)
+    date = new Date(date)
+    return (date > currentDate)?false:true
  };
 
 module.exports = {
     subtractDate,
     addDaysToDate,
     formatDate,
-    isFutureDate
+    isFutureDate,
+    isPastDate
 }
