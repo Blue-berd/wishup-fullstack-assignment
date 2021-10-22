@@ -1,8 +1,5 @@
 const { userModel, subscriptionModel } = require("../models");
-const { validator, functions } = require("../utils");
-// const dateandtime = require('date-and-time');
-// // const moment = require('moment')
-// // const {addDays} = require('date-fns')
+const { validator, helper } = require("../utils");
 
 const createNewPlan = async function (req, res) {
   try {
@@ -108,9 +105,9 @@ const subscribe = async function (req, res) {
     const plan = await subscriptionModel.findOne({ plan_Id: plan_Id });
 
     if (plan.validity != "Infinite") {
-      const total = functions.addDate(start_date, +plan.validity);
+      const total = helper.addDate(start_date, +plan.validity);
       var valid_till = new Date(total);
-      valid_till = functions.formatDateYMD(valid_till);
+      valid_till = helper.formatDateYMD(valid_till);
     }
 
     if (plan.validity == "Infinite") {
@@ -122,15 +119,6 @@ const subscribe = async function (req, res) {
     let plan_exist = userInfo.subscriptions;
 
     plan_exist = plan_exist.map((item) => item.plan_Id);
-
-    if (plan_exist.find((item) => item == plan_Id)) {
-      return res
-        .status(400)
-        .send({
-          status: "FAILURE",
-          msg: `you already have ${plan_Id} subscription.`,
-        });
-    }
 
     const subscriptionObject = {
       plan_Id,
@@ -153,11 +141,22 @@ const subscribe = async function (req, res) {
         });
     }
 
-    let cost = `${plan.cost}`;
+    let cost = `-${plan.cost}`;
 
     if (plan.cost == 0) {
       cost = 0;
     }
+
+    // if (plan_exist.find((item) => item == plan_Id)) {
+    //   return res
+    //     .status(201)
+    //     .send({
+    //       status: "SUCCESS",
+    //       msg: `you have renewed ${plan_Id} subscription.`,
+    //       amount: cost
+    //     });
+    // }
+
     return res.status(201).send({ status: "SUCCESS", amount: cost });
   } catch (error) {
     res.status(500).send({ status: "FAILURE", msg: error.message });
@@ -210,7 +209,7 @@ const getSubscription = async function (req, res) {
 
     const now = new Date();
 
-    let dateToday = functions.formatDateYMD(now);
+    let dateToday = helper.formatDateYMD(now);
 
     if (+dateToday >= valid_till) {
       return res
@@ -221,25 +220,25 @@ const getSubscription = async function (req, res) {
         });
     }
 
+    const userSubscriptions = user.subscriptions;
+    const subscriptionsInfo = [];
+
+    userSubscriptions.forEach((item) =>
+    subscriptionsInfo.push({
+        plan_Id : item.plan_Id,
+        start_date : helper.formatDateYMD(item.start_date),
+        valid_till : helper.formatDateYMD(item.valid_till),
+      })
+    );
+
     if (!date) {
-      const userSubscriptions = user.subscriptions;
-      const userObject = [];
-
-      userSubscriptions.forEach((item) =>
-        userObject.push({
-          plan_Id : item.plan_Id,
-          start_date : functions.formatDateYMD(item.start_date),
-          valid_till : functions.formatDateYMD(item.valid_till),
-        })
-      );
-
-      return res.status(200).send({ status: "SUCCESS", data: userObject });
+      return res.status(200).send({ status: "SUCCESS", data: subscriptionsInfo });
     }
 
     date = new Date(date)
     dateToday = new Date(dateToday)
-    const days_left = functions.subtractDate(dateToday, date);
- 
+    const days_left = helper.subtractDate(dateToday, date);
+    
     const result = {
       plan_Id : user.subscriptions.plan_Id,
       days_left : days_left,

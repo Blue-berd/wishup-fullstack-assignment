@@ -5,6 +5,7 @@ const subtractDate = function(date1, date2){
     return days
 }
 
+// rename to addDays
 const addDate = function(date1, days){
     const date1Inms = date1.getTime()
     const dayInms = days*86400000
