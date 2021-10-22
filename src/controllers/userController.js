@@ -55,7 +55,7 @@ const getUser = async function(req, res){
 
         // change date format to yyyy-mm-dd hh-mm-ss
         let date = userDetails.created_at
-        date = helper.formatDate(date, 'YY-MM-DD HH:MM:SS')
+        date = helper.formatDate(date, "YY-MM-DD HH:MM:SS")
 
         const userObject = {username:userDetails.username, created_at:date}
         return res.status(200).send({status:'SUCCESS', data:userObject})

@@ -8,6 +8,7 @@ const isValidString = function (value) {
 
 const isValidNumber = function (value) {
    if (typeof value === "undefined" || value === null) return false;
+   if (value < 0) return false;
    if (typeof value === "String" && value.trim().length === 0) return false;
    return true;
 };
@@ -17,6 +18,9 @@ const isValidRequestBody = function (value) {
 };
 
 const isValidDate = function (value) {
+   const today = new Date()
+   value = new Date(value)
+   if (today <= value) return false;
    return date.isValid(value, 'YYYY-MM-DD');
 };
 
