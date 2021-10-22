@@ -1,5 +1,5 @@
 {
-  "name": "wishup assignment",
+  "name": "wishup-assignment",
   "version": "1.0.0",
   "description": "��#\u0000 \u0000w\u0000i\u0000s\u0000h\u0000u\u0000p\u0000-\u0000f\u0000u\u0000l\u0000l\u0000s\u0000t\u0000a\u0000c\u0000k\u0000-\u0000a\u0000s\u0000s\u0000i\u0000g\u0000n\u0000m\u0000e\u0000n\u0000t\u0000\r\u0000 \u0000",
   "main": "index.js",
@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/Blue-berd/wishup-fullstack-assignment#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "date-and-time": "^2.0.1",
+    "date-fns": "^2.25.0",
+    "express": "^4.17.1",
+    "moment": "^2.29.1",
+    "mongoose": "^6.0.11"
   }
 }
