@@ -104,7 +104,8 @@ const subscribe = async function (req, res) {
     }
 
     start_date = new Date(start_date);
-
+    // console.log(start_date)
+    // console.log(validator.isValidDate(start_date))
     //check if start_date is valid and is greater than or equal to present date
     if (!validator.isValidDate(start_date)) {
       res
@@ -115,16 +116,26 @@ const subscribe = async function (req, res) {
         });
       return;
     }
+    console.log(helper.isFutureDate(start_date))
+    if (!helper.isFutureDate(start_date)) {
+      res
+        .status(400)
+        .send({
+          status: "FAILURE",
+          msg: "please provide valid start_date in format YYYY/MM/DD. Start Date should be greater than or equal to current Date",
+        });
+      return;
+    }
     
     // check if plan validity is not infinite 
     if (valid_plan.validity != "Infinite") {
-      const total = helper.addDaysToDate(start_date, +plan.validity);
+      const total = helper.addDaysToDate(start_date, +valid_plan.validity);
       var valid_till = new Date(total);
       valid_till = helper.formatDate(valid_till,'YY-MM-DD');
     }
 
     // check if plan validity is infinite
-    if (plan.validity == "Infinite") {
+    if (valid_plan.validity == "Infinite") {
       var valid_till = "Infinity";
     }
 
@@ -135,16 +146,16 @@ const subscribe = async function (req, res) {
     let existingPlan = userInfo.subscriptions;
     const activePlan = []
     const pass = 'pass'
-    
+    const now = new Date()
     // if valid_till is still valid push entire plan item into active plan
-    existingPlan.forEach(  item => validator.isValidDate(item.valid_till)?activePlan.push({item}):pass )
-
-     if (activePlan.find((item) => item.plan_Id == plan_Id)) {
+    existingPlan.forEach(  item => (item.valid_till>now)?activePlan.push(item):pass )
+   
+     if (activePlan.length>0) {
       return res
-        .status(201)
+        .status(400)
         .send({
           status: "FAILURE",
-          msg: `you already have ${plan_Id} active subscription.`,
+          msg: `you already have ${activePlan[0].plan_Id} active subscription.`,
         });
     }
 
@@ -163,12 +174,14 @@ const subscribe = async function (req, res) {
     );
 
     // amount 
-    let cost = plan.cost;
+    let cost = valid_plan.cost;
 
-    if (plan.cost == 0) {
+    if (cost == 0) {
       cost = 0;
     }
-
+    if(cost != 0){
+      cost = `-${cost}`
+    }
     // check if subscription is not added. tell money is credited
     if (subscription == null) {
       return res
@@ -181,7 +194,7 @@ const subscribe = async function (req, res) {
     }
 
     // Success. money amount is debited
-    return res.status(201).send({ status: "SUCCESS", amount: `-${cost}` });
+    return res.status(201).send({ status: "SUCCESS", amount: cost });
 
   } catch (error) {
     res.status(500).send({ status: "FAILURE", msg: error.message });
@@ -200,7 +213,7 @@ const getSubscription = async function (req, res) {
           msg: "Please provide valid username and/or date",
         });
     }
-
+   
     // assign values
     let { username, date } = params;
 
@@ -209,17 +222,6 @@ const getSubscription = async function (req, res) {
         res
           .status(400)
           .send({ status: "FAILURE", msg: "please provide valid username" });
-        return;
-      }
-
-    // check if date is valid
-    if (!validator.isValidDate(date)) {
-        res
-          .status(400)
-          .send({
-            status: "FAILURE",
-            msg: "please provide valid start_date in format YYYY/MM/DD",
-          });
         return;
       }
 
@@ -234,55 +236,82 @@ const getSubscription = async function (req, res) {
           });
         return;
       }
+
     // check if user has active plans
     let existingPlan = user.subscriptions;
     const activePlan = []
     const pass = 'pass'
-    
-    // if valid_till is still valid push entire plan item into active plan
-    existingPlan.forEach(  item => validator.isValidDate(item.valid_till)?activePlan.push(item):pass )
-
-    // handling case when no date is given 
-    
     const now = new Date();
+    // if plan is still valid push entire plan item into active plan
+    existingPlan.forEach(  item => (item.valid_till>=now)?activePlan.push(item):pass )
 
-    let dateToday = helper.formatDate(now,'YY-MM-DD');
-    const userSubscriptions = user.subscriptions;
-    const subscriptionsInfo = [];
-
-    // formatting dates in required format 'YY-MM-DD'
-    userSubscriptions.forEach((item) =>
-    subscriptionsInfo.push({
-        plan_Id : item.plan_Id,
-        start_date : helper.formatDate(item.start_date,'YY-MM-DD'),
-        valid_till : helper.formatDate(item.valid_till,'YY-MM-DD'),
-      })
-    );
-
+    // handling case when date is not given 
     if (!date) {
-      return res.status(200).send({ status: "SUCCESS", data: subscriptionsInfo });
+
+      let dateToday = helper.formatDate(now,'YY-MM-DD');
+      const userSubscriptions = user.subscriptions;
+      const subscriptionsInfo = [];
+  
+      // formatting dates in required format 'YY-MM-DD'
+      userSubscriptions.forEach((item) =>
+      subscriptionsInfo.push({
+          plan_Id : item.plan_Id,
+          start_date : helper.formatDate(item.start_date,'YY-MM-DD'),
+          valid_till : helper.formatDate(item.valid_till,'YY-MM-DD'),
+        })
+      );
+
+
+    return res.status(200).send({ status: "SUCCESS", data: subscriptionsInfo });
     }
+
     // When Date is given 
+    // check if date is valid
+    if (!helper.isFutureDate(date)) {
+      res
+        .status(400)
+        .send({
+          status: "FAILURE",
+          msg: "please provide valid date in format YYYY/MM/DD. Date should be greater than or equal to current Date",
+        });
+      return;
+    }
+
+
+    if (!validator.isValidDate(date)) {
+      res
+        .status(400)
+        .send({
+          status: "FAILURE",
+          msg: "please provide valid start_date in format YYYY/MM/DD",
+        });
+      return;
+    }
 
     if(activePlan.length ===0){
       return res.status(200).send({ status: "FAILURE", msg:'Active plan not found'  });
     }
 
     date = new Date(date)
-    const validTill = activePlan.valid_till
+    const validTill = activePlan[0].valid_till
 
     // from problem statement date should be less than validity date
     if(validTill < date){
       return res.status(400).send({status:'FAILURE', msg:'Date should be less than validity date'})
     }
 
+    // calculate days left
     const days_left = helper.subtractDate(date, validTill);
-
+    console.log()
+    console.log(activePlan)
+    //create result object to send response 
     const result = {
-      plan_Id : activePlan.plan_Id,
+      plan_Id : activePlan[0].plan_Id,
       days_left : days_left,
     };
+
     return res.status(200).send({ status: "SUCCESS", data: result });
+
   } catch (error) {
     res.status(500).send({ status: "FAILURE", msg: error.message });
   }
@@ -291,5 +320,5 @@ const getSubscription = async function (req, res) {
 module.exports = {
   getSubscription,
   subscribe,
-  createNewPlan,
+  createNewPlan
 };

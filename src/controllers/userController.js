@@ -6,8 +6,13 @@ const createUser = async function(req, res){
     try{ 
         const username = req.body.username
 
+         if( !(validator.isValidRequestBody(req.body)) ){
+            res.status(400).send({status:'FAILURE', msg:"please send valid request body"})
+            return
+        }
+
         // validate username for string
-        if( !(validator.isValidString(username)) ){
+        if( username.length===0 || !(validator.isValidString(username) ) ){
             res.status(400).send({status:'FAILURE', msg:"please send valid username"})
             return
         }
@@ -49,7 +54,7 @@ const getUser = async function(req, res){
         let userDetails = await userModel.findOne({username:username},{username:1, created_at:1, })
 
         // check if userDetails are found for username . If not found throw error
-        if( userDetails.length === 0 ){
+        if( !userDetails ){
             return res.status(404).send({status:'FAILURE', msg:"Username not found or not registered"})
         }
 

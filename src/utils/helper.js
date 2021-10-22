@@ -1,14 +1,20 @@
 // subtract dates to get difference in days
+
 const subtractDate = function(date1, date2){
+    date1 = new Date(date1)
+    date2 = new Date(date2)
     const date1Inms = date1.getTime()
     const date2Inms = date2.getTime()
-    const days = Math.round((date2Inms - date1Inms)/(1000*3600*24))
+    const total = date2Inms - date1Inms
+    console.log(` total = ${total}`)
+    const days = Math.round(total/86400000)
     return days
 }
 
 // add days to date
 
 const addDaysToDate = function(date1, days){
+    date1 = new Date(date1)
     const date1Inms = date1.getTime()
     const dayInms = days*86400000
     const add = new Date(dayInms + date1Inms)
@@ -38,8 +44,16 @@ const formatDate = function(date, format){
     return new Date(date)
 }
 
+const isFutureDate = function (value) {
+    let today = new Date(new Date().getTime()-86400000)
+    today= new Date(today.getTime()-86400000)
+    value = new Date(value)
+    return (value < today)?false:true
+ };
+
 module.exports = {
     subtractDate,
     addDaysToDate,
     formatDate,
+    isFutureDate
 }

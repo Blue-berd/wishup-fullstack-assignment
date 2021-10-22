@@ -1,4 +1,5 @@
-const date = require('date-and-time');
+const moment = require('moment')
+const helper = require('./helper')
 
 const isValidString = function (value) {
    if (typeof value === "undefined" || value === null) return false;
@@ -20,9 +21,9 @@ const isValidRequestBody = function (value) {
 const isValidDate = function (value) {
    const today = new Date()
    value = new Date(value)
-   if (today <= value) return false;
-   return date.isValid(value, 'YYYY-MM-DD');
+   return moment(value, 'YYYY-MM-DD', true).isValid()
 };
+
 
 module.exports = {
    isValidNumber,
