@@ -306,7 +306,7 @@ const getSubscription = async function (req, res) {
       days_left : days_left,
     };
 
-    return res.status(200).send({ status: "SUCCESS", data: result });
+    return res.status(200).send(result);
 
   } catch (error) {
     res.status(500).send({ status: "FAILURE", msg: error.message });
